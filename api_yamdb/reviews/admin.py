@@ -22,16 +22,18 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
     fields = (
-        'title',
+        'name',
         'category',
         'genre',
+        'descriptions',
     )
     list_display = (
-        'title',
+        'name',
         'category',
+        'description',
     )
     search_fields = (
-        'title',
+        'name',
         'category',
         'genre',
     )
@@ -49,7 +51,6 @@ class TitleAdmin(admin.ModelAdmin):
 class GenreAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'description',
     )
     search_fields = (
         'name',
@@ -57,4 +58,12 @@ class GenreAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-admin.site.register(Category)
+@admin.register(Category)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+    )
+    search_fields = (
+        'name',
+    )
+    empty_value_display = '-пусто-'
