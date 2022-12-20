@@ -79,8 +79,8 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
         verbose_name = 'Категория'
@@ -91,9 +91,8 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=128)
-    slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -104,7 +103,13 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    title = models.CharField(max_length=128)
+    name = models.CharField(max_length=64)
+    year = models.IntegerField()
+    raiting = models.IntegerField(
+        null=True
+    )
+    description = models.TextField()
+    genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
         related_name='titles',
@@ -112,11 +117,10 @@ class Title(models.Model):
         null=True,
         blank=True
     )
-    genre = models.ManyToManyField(Genre)
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
-        return self.title
+        return self.name
