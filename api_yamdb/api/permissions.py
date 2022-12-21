@@ -17,7 +17,7 @@ class AdminOnly(permissions.BasePermission):
         )
 
 
-class isAdminOrOnlyRead(permissions.BasePermission):
+class isAdminOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (

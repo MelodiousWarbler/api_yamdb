@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.permissions import AdminOnly
+from api.permissions import AdminOnly, isAdminOrReadOnly
 from api.serializers import (
     GetTokenSerializer,
     NotAdminSerializer,
@@ -16,7 +16,6 @@ from api.serializers import (
     GenreSerializer,
     TitleSerializer
 )
-from api.permissions import isAdminOrOnlyRead
 from reviews.models import Category, Genre, Title, User
 
 
@@ -102,19 +101,19 @@ class APISignup(APIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = isAdminOrOnlyRead
+    permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = isAdminOrOnlyRead
+    permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = isAdminOrOnlyRead
+    permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
