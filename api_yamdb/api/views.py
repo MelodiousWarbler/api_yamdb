@@ -1,5 +1,5 @@
 from django.core.mail import EmailMessage
-from rest_framework import permissions, status, viewsets
+from rest_framework import pagination, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,9 +11,13 @@ from api.serializers import (
     GetTokenSerializer,
     NotAdminSerializer,
     SignUpSerializer,
-    UsersSerializer
+    UsersSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    TitleSerializer
 )
-from reviews.models import User
+from api.permissions import isAdminOrOnlyRead
+from reviews.models import Category, Genre, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -93,3 +97,24 @@ class APISignup(APIView):
         )
         email.send()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = isAdminOrOnlyRead
+    pagination_class = pagination.LimitOffsetPagination
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = isAdminOrOnlyRead
+    pagination_class = pagination.LimitOffsetPagination
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = isAdminOrOnlyRead
+    pagination_class = pagination.LimitOffsetPagination
