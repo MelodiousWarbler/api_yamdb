@@ -15,9 +15,10 @@ from api.serializers import (
     UsersSerializer,
     CategorySerializer,
     GenreSerializer,
-    TitleSerializer
+    TitleSerializer,
+    ReviewSerializer
 )
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Genre, Title, Review, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -121,3 +122,21 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    # TODO(MelodiousWarbler): Ревью должны оставлять в том числе и
+    #  пользователи, но у нас нет соответствующего класса, когда он будет
+    #  реализован, нужно будет здесь выставить правильный
+    #  (isUserOrAdminOrModeratorOrReadOnly или как он будет называться)
+    permission_classes = (isAdminOrReadOnly,)
+    pagination_class = pagination.LimitOffsetPagination
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        serializer.save(author=self.request.user, title_id=title_id)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        return Review.objects.filter(title=title_id)
