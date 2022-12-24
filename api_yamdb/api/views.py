@@ -1,4 +1,5 @@
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from rest_framework import pagination, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -118,7 +119,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
