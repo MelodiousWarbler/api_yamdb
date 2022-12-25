@@ -14,11 +14,11 @@ class Command(BaseCommand):
                 if row[1] == 'name':
                     continue
                 User.objects.get_or_create(
-                    username=str(row[1]),
-                    email=str(row[2]),
-                    role=str(row[3]),
-                    bio=str(row[4]),
-                    first_name=str(row[5]),
-                    last_name=str(row[6])
+                    username=row[1],
+                    email=row[2],
+                    role=row[3],
+                    bio=row[4],
+                    first_name=row[5],
+                    last_name=row[6]
                 )
             return 'The users have been uploaded'

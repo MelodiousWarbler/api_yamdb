@@ -14,7 +14,7 @@ class Command(BaseCommand):
                 if row[1] == 'name' and row[2] == 'slug':
                     continue
                 Category.objects.get_or_create(
-                    name=str(row[1]),
-                    slug=str(row[2])
+                    name=row[1],
+                    slug=row[2]
                 )
             return 'Category data has been uploaded'
