@@ -1,4 +1,5 @@
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from rest_framework import pagination, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -15,9 +16,10 @@ from api.serializers import (
     UsersSerializer,
     CategorySerializer,
     GenreSerializer,
-    TitleSerializer
+    TitleSerializer,
+    ReviewSerializer
 )
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Genre, Title, Review, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -117,7 +119,25 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (isAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    # TODO(MelodiousWarbler): Ревью должны оставлять в том числе и
+    #  пользователи, но у нас нет соответствующего класса, когда он будет
+    #  реализован, нужно будет здесь выставить правильный
+    #  (isUserOrAdminOrModeratorOrReadOnly или как он будет называться)
+    permission_classes = (isAdminOrReadOnly,)
+    pagination_class = pagination.LimitOffsetPagination
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        serializer.save(author=self.request.user, title_id=title_id)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        return Review.objects.filter(title=title_id)
