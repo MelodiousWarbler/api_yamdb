@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Category, Genre, Title, User, Review
+from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -57,6 +57,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
 
     class Meta:
         model = Title
@@ -68,6 +69,15 @@ class TitleSerializer(serializers.ModelSerializer):
             'genre',
             'category'
         )
+
+    def create(self, validated_data):
+        genre = validated_data.pop('genre')
+        title = Title.objects.create(**validated_data)
+
+        for item in genre:
+            current_genre, status = Genre.objects.get_or_create(**item)
+            GenreTitle.objects.create(genre=current_genre, title=title)
+        return title
 
 
 class CurrentTitleIdDefault:

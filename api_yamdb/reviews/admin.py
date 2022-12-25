@@ -19,32 +19,44 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+class GenreInlineAdmin(admin.TabularInline):
+    model = Title.genre.through
+
+
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
+    inlines = [
+        GenreInlineAdmin
+    ]
     fields = (
         'name',
         'category',
+        'description',
+        'year',
+        'raiting',
         'genre',
-        'descriptions',
     )
     list_display = (
         'name',
         'category',
         'description',
+        'year',
+        'get_genre',
+        'raiting'
     )
     search_fields = (
         'name',
         'category',
-        'genre',
+        'raiting'
     )
     list_filter = (
         'category',
         'genre',
     )
-    filter_horizontal = (
-        'genre',
-    )
     empty_value_display = '-пусто-'
+
+    def get_genre(self, obj):
+        return [genre.name for genre in obj.genre.all()]
 
 
 @admin.register(Genre)
