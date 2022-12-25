@@ -34,6 +34,7 @@ class TitleAdmin(admin.ModelAdmin):
         'description',
         'year',
         'raiting',
+        'genre',
     )
     list_display = (
         'name',
