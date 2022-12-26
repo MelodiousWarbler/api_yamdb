@@ -1,3 +1,6 @@
+import re
+
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -5,6 +8,19 @@ from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        if data.get("email", False):
+            if User.objects.filter(email=data["email"]):
+                    raise serializers.ValidationError(
+                        {"email": "Данный email уже зарегистрирован"}
+                    )
+        if data.get("username", False):
+            if User.objects.filter(username=data["username"]):
+                    raise serializers.ValidationError(
+                        {"username": "Данный username уже зарегистрирован"}
+                    )
+        return data
+
     class Meta:
         model = User
         fields = (
@@ -35,11 +51,55 @@ class GetTokenSerializer(serializers.ModelSerializer):
         )
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[],
+    )
+    email = serializers.EmailField(
+        max_length=254,
+    )
 
-    class Meta:
-        model = User
-        fields = ('email', 'username')
+    def create(self, validated_data):
+        return User.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return instance
+
+    def validate(self, data):
+        errors = {}
+
+        if not data.get("username", False):
+            errors["username"] = "Это поле обязательно"
+        if not data.get("email", False):
+            errors["email"] = "Это поле обязательно"
+        user = data.get("username", False)
+        if user.lower() == "me":
+            raise serializers.ValidationError("Username 'me' is not valid")
+        if re.search(r'^[\w.@+-]+$', user) is None:
+            raise ValidationError(
+                (f'Не допустимые символы <{user}> в нике.'),
+                params={'value': user},
+            )
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        if User.objects.filter(email=data["email"]):
+            user = User.objects.get(email=data["email"])
+            if user.username != data["username"]:
+                raise serializers.ValidationError(
+                    {"email": "Данный email уже зарегистрирован"}
+                )
+        elif User.objects.filter(username=data["username"]):
+            user = User.objects.get(username=data["username"])
+            if user.email != data["email"]:
+                raise serializers.ValidationError(
+                    {"username": "Данный user уже зарегистрирован"}
+                )
+        return data
 
 
 class CategorySerializer(serializers.ModelSerializer):

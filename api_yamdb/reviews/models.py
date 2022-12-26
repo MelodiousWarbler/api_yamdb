@@ -19,13 +19,13 @@ class User(AbstractUser):
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,
-        unique=True,
+        # unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
         max_length=254,
-        unique=True,
+        # unique=True,
         blank=False,
         null=False
     )
