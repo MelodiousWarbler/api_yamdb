@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.permissions import AdminOnly, isAdminOrReadOnly
+from api.permissions import AdminOnly, isAdminOrReadOnly, isUserAdminModeratorReadOnly
 from api.serializers import (
     GetTokenSerializer,
     NotAdminSerializer,
@@ -127,11 +127,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    # TODO(MelodiousWarbler): Ревью должны оставлять в том числе и
-    #  пользователи, но у нас нет соответствующего класса, когда он будет
-    #  реализован, нужно будет здесь выставить правильный
-    #  (isUserOrAdminOrModeratorOrReadOnly или как он будет называться)
-    permission_classes = (isAdminOrReadOnly,)
+    permission_classes = (isUserAdminModeratorReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
 
     def perform_create(self, serializer):
