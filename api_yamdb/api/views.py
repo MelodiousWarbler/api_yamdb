@@ -145,9 +145,9 @@ class GenreViewSet(viewsets.ModelViewSet):
     search_fields = ('name',)
 
     def get_object(self):
-        lookup_field = self.kwargs['name']
-        obj = get_object_or_404(Genre, slug=lookup_field)
-        return obj
+        slug = self.kwargs['name']
+        object = get_object_or_404(Genre, slug=slug)
+        return object
 
     def retrieve(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -156,8 +156,8 @@ class GenreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
+        object = self.get_object()
+        self.perform_destroy(object)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
