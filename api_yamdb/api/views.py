@@ -6,25 +6,28 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
 
+from api.filters import TitleFilter
 from api.permissions import (
     AdminOnly,
     isAdminOrReadOnly,
     isUserAdminModeratorReadOnly
 )
 from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
     GetTokenSerializer,
     NotAdminSerializer,
+    ReviewSerializer,
     SignUpSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
     UsersSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitleSerializer,
-    ReviewSerializer
 )
-from reviews.models import Category, Genre, Title, Review, User
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -164,20 +167,44 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
-    serializer_class = TitleSerializer
     permission_classes = (isAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (isUserAdminModeratorReadOnly,)
+
+    def get_queryset(self):
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (isUserAdminModeratorReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
-
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        serializer.save(author=self.request.user, title_id=title_id)
 
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        return Review.objects.filter(title=title_id)
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
