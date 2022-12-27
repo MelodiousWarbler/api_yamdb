@@ -2,7 +2,6 @@ import re
 
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
@@ -11,14 +10,14 @@ class UsersSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get("email", False):
             if User.objects.filter(email=data["email"]):
-                    raise serializers.ValidationError(
-                        {"email": "Данный email уже зарегистрирован"}
-                    )
+                raise serializers.ValidationError(
+                    {"email": "Данный email уже зарегистрирован"}
+                )
         if data.get("username", False):
             if User.objects.filter(username=data["username"]):
-                    raise serializers.ValidationError(
-                        {"username": "Данный username уже зарегистрирован"}
-                    )
+                raise serializers.ValidationError(
+                    {"username": "Данный username уже зарегистрирован"}
+                )
         return data
 
     class Meta:
