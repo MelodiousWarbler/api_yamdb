@@ -8,15 +8,15 @@ from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
 class UsersSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if data.get("email", False):
-            if User.objects.filter(email=data["email"]):
+        if data.get('email', False):
+            if User.objects.filter(email=data['email']):
                 raise serializers.ValidationError(
-                    {"email": "Данный email уже зарегистрирован"}
+                    {'email': 'Данный email уже зарегистрирован'}
                 )
-        if data.get("username", False):
-            if User.objects.filter(username=data["username"]):
+        if data.get('username', False):
+            if User.objects.filter(username=data['username']):
                 raise serializers.ValidationError(
-                    {"username": "Данный username уже зарегистрирован"}
+                    {'username': 'Данный username уже зарегистрирован'}
                 )
         return data
 
@@ -71,13 +71,13 @@ class SignUpSerializer(serializers.Serializer):
     def validate(self, data):
         errors = {}
 
-        if not data.get("username", False):
-            errors["username"] = "Это поле обязательно"
-        if not data.get("email", False):
-            errors["email"] = "Это поле обязательно"
-        user = data.get("username", False)
-        if user.lower() == "me":
-            raise serializers.ValidationError("Username 'me' is not valid")
+        if not data.get('username', False):
+            errors['username'] = 'Это поле обязательно'
+        if not data.get('email', False):
+            errors['email'] = 'Это поле обязательно'
+        user = data.get('username', False)
+        if user.lower() == 'me':
+            raise serializers.ValidationError('Username "me" недопустимо')
         if re.search(r'^[\w.@+-]+$', user) is None:
             raise ValidationError(
                 (f'Не допустимые символы <{user}> в нике.'),
@@ -86,17 +86,17 @@ class SignUpSerializer(serializers.Serializer):
         if errors:
             raise serializers.ValidationError(errors)
 
-        if User.objects.filter(email=data["email"]):
-            user = User.objects.get(email=data["email"])
-            if user.username != data["username"]:
+        if User.objects.filter(email=data['email']):
+            user = User.objects.get(email=data['email'])
+            if user.username != data['username']:
                 raise serializers.ValidationError(
-                    {"email": "Данный email уже зарегистрирован"}
+                    {'email': 'Данный email уже зарегистрирован'}
                 )
-        elif User.objects.filter(username=data["username"]):
-            user = User.objects.get(username=data["username"])
-            if user.email != data["email"]:
+        elif User.objects.filter(username=data['username']):
+            user = User.objects.get(username=data['username'])
+            if user.email != data['email']:
                 raise serializers.ValidationError(
-                    {"username": "Данный user уже зарегистрирован"}
+                    {'username': 'Данный user уже зарегистрирован'}
                 )
         return data
 
