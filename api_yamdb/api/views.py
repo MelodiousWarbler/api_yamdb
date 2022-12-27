@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api.permissions import (
     AdminOnly,
@@ -21,7 +22,8 @@ from api.serializers import (
     UsersSerializer,
     CategorySerializer,
     GenreSerializer,
-    TitleSerializer,
+    TitleReadSerializer,
+    TitleCreateSerializer,
     ReviewSerializer
 )
 from reviews.models import Category, Genre, Title, Review, User
@@ -164,9 +166,28 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
-    serializer_class = TitleSerializer
     permission_classes = (isAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return TitleCreateSerializer
+        return TitleReadSerializer
+
+    def get_queryset(self):
+        queryset = Title.objects.all()
+        genre = self.request.query_params.get('genre')
+        category = self.request.query_params.get('category')
+        year = self.request.query_params.get('year')
+        name = self.request.query_params.get('name')
+        if genre is not None:
+            queryset = queryset.filter(genre__slug=genre)
+        if category is not None:
+            queryset = queryset.filter(category__slug=category)
+        if year is not None:
+            queryset = queryset.filter(year=year)
+        if name is not None:
+            queryset = queryset.filter(name=name)
+        return queryset
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

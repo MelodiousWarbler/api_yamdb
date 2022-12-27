@@ -115,12 +115,47 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True)
+class TitleReadSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(
+        many=True,
+        read_only=True
+    )
+    category = CategorySerializer(
+        read_only=True
+    )
+    raiting = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         model = Title
         fields = (
+            'id',
+            'name',
+            'year',
+            'raiting',
+            'description',
+            'genre',
+            'category',
+            'raiting'
+        )
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        many=True,
+        slug_field='slug'
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'id',
             'name',
             'year',
             'raiting',
@@ -128,15 +163,6 @@ class TitleSerializer(serializers.ModelSerializer):
             'genre',
             'category'
         )
-
-    def create(self, validated_data):
-        genre = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data)
-
-        for item in genre:
-            current_genre, status = Genre.objects.get_or_create(**item)
-            GenreTitle.objects.create(genre=current_genre, title=title)
-        return title
 
 
 class CurrentTitleIdDefault:
