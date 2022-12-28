@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 from api.filters import TitleFilter
 from api.permissions import (
     AdminOnly,
-    isAdminOrReadOnly,
-    isUserAdminModeratorAuthorOrReadOnly,
+    IsAdminOrReadOnly,
+    IsUserAdminModeratorAuthorOrReadOnly,
 )
 from api.serializers import (
     CategorySerializer,
@@ -116,7 +116,7 @@ class APISignup(APIView):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (isAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
     lookup_field = 'name'
     filter_backends = (SearchFilter,)
@@ -142,7 +142,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (isAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
     lookup_field = 'name'
     filter_backends = (SearchFilter,)
@@ -167,7 +167,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
-    permission_classes = (isAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -178,7 +178,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (isUserAdminModeratorAuthorOrReadOnly,)
+    permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -195,7 +195,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (isUserAdminModeratorAuthorOrReadOnly,)
+    permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(

@@ -2,12 +2,13 @@ from rest_framework import permissions
 
 
 class AdminOnly(permissions.BasePermission):
+    '''Доступ для администратора'''
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (
-                    request.user.is_admin or request.user.is_superuser)
+        return request.user.is_authenticated and request.user.is_admin
 
 
-class isAdminOrReadOnly(permissions.BasePermission):
+class IsAdminOrReadOnly(permissions.BasePermission):
+    '''Доступ для администратора или только для чтения'''
     def has_permission(self, request, view):
         return (
                 request.method in permissions.SAFE_METHODS
@@ -15,7 +16,8 @@ class isAdminOrReadOnly(permissions.BasePermission):
         )
 
 
-class isUserAdminModeratorAuthorOrReadOnly(permissions.BasePermission):
+class IsUserAdminModeratorAuthorOrReadOnly(permissions.BasePermission):
+    '''Доступ для пользователя, модератора, администратора или только для чтения'''
     def has_permission(self, request, view):
         return (
                 request.method in permissions.SAFE_METHODS
