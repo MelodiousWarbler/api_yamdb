@@ -13,7 +13,7 @@ from api.filters import TitleFilter
 from api.permissions import (
     AdminOnly,
     isAdminOrReadOnly,
-    isUserAdminModeratorReadOnly
+    isUserAdminModeratorAuthorOrReadOnly,
 )
 from api.serializers import (
     CategorySerializer,
@@ -178,7 +178,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (isUserAdminModeratorReadOnly,)
+    permission_classes = (isUserAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -195,7 +195,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (isUserAdminModeratorReadOnly,)
+    permission_classes = (isUserAdminModeratorAuthorOrReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(
