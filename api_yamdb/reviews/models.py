@@ -2,21 +2,23 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .validators import validate_username
+from reviews.validators import validate_username, validate_year
+
 
 ADMIN = 'admin'
 MODERATOR = 'moderator'
 USER = 'user'
 
 CHOICES = (
-    (USER, USER),
-    (MODERATOR, MODERATOR),
-    (ADMIN, ADMIN),
+    (USER, 'Пользователь'),
+    (MODERATOR, 'Модератор'),
+    (ADMIN, 'Админ'),
 )
 
 
 class User(AbstractUser):
     username = models.CharField(
+        'имя пользователя',
         validators=(validate_username,),
         max_length=150,
         # unique=True,
@@ -24,6 +26,7 @@ class User(AbstractUser):
         null=False
     )
     email = models.EmailField(
+        'email',
         max_length=254,
         # unique=True,
         blank=False,
@@ -31,7 +34,7 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'роль',
-        max_length=20,
+        max_length=len(CHOICES),
         choices=CHOICES,
         default=USER,
         blank=True
@@ -55,7 +58,7 @@ class User(AbstractUser):
         max_length=255,
         null=True,
         blank=False,
-        default='XXXX'
+        default=' '
     )
 
     @property
@@ -121,7 +124,8 @@ class Title(models.Model):
         verbose_name='Название'
     )
     year = models.IntegerField(
-        verbose_name='Год производства'
+        verbose_name='Год производства',
+        validators=(validate_year,)
     )
     raiting = models.IntegerField(
         blank=True,
