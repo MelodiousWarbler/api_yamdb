@@ -21,7 +21,7 @@ class User(AbstractUser):
         'имя пользователя',
         validators=(validate_username,),
         max_length=150,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
@@ -34,7 +34,7 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'роль',
-        max_length=len(CHOICES),
+        max_length=(len(choice) for choice in CHOICES),
         choices=CHOICES,
         default=USER,
         blank=True

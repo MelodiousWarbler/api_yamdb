@@ -3,6 +3,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import pagination, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -30,6 +31,10 @@ from api.serializers import (
 from reviews.models import Category, Genre, Review, Title, User
 
 
+OCCUPIED_EMAIL='Электронная почта уже занята!'
+OCCUPIED_USERNAME='Имя пользователя уже занято!'
+
+
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
@@ -46,22 +51,15 @@ class UsersViewSet(viewsets.ModelViewSet):
         url_path='me'
     )
     def get_current_user_info(self, request):
-        serializer = UsersSerializer(request.user)
+        serializer = NotAdminSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_admin:
-                serializer = UsersSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True
-                )
-            else:
-                serializer = NotAdminSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True
-                )
+            serializer = NotAdminSerializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data)
 
@@ -90,12 +88,15 @@ class APIGetToken(APIView):
 
 
 class APISignup(APIView):
-    permission_classes = (permissions.AllowAny,)
-
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        serializer.save()
+        try:
+            user = User.objects.get_or_create(username=serializer.validated_data['username'], email=serializer.validated_data['email'])
+        except:
+            error = OCCUPIED_EMAIL if User.objects.filter(email=serializer.validated_data['email']).exit else OCCUPIED_USERNAME
+            raise AuthenticationFailed(error)
         data = {
             'email_body': (
                 f'Доброго дня, {user.username}.'
