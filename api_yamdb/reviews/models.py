@@ -21,14 +21,14 @@ class User(AbstractUser):
         'имя пользователя',
         validators=(validate_username,),
         max_length=150,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
         'email',
         max_length=254,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
@@ -60,10 +60,6 @@ class User(AbstractUser):
         blank=False,
         default=' '
     )
-
-    @property
-    def is_user(self):
-        return self.role == USER
 
     @property
     def is_admin(self):
