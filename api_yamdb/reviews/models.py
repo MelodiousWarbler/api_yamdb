@@ -4,6 +4,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from api_yamdb.settings import (
+    ABSTRACT_NAME_LENGTH,
+    CODE_LENGTH, EMAIL_LENGTH,
+    NAME_LENGTH, SLUG_LENGTH
+)
 from reviews.validators import validate_username
 
 
@@ -22,14 +27,14 @@ class User(AbstractUser):
     username = models.CharField(
         'имя пользователя',
         validators=(validate_username,),
-        max_length=150,
+        max_length=NAME_LENGTH,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
         'email',
-        max_length=254,
+        max_length=EMAIL_LENGTH,
         unique=True,
         blank=False,
         null=False
@@ -47,21 +52,26 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=150,
+        max_length=NAME_LENGTH,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=150,
+        max_length=NAME_LENGTH,
         blank=True
     )
     confirmation_code = models.CharField(
         'код подтверждения',
-        max_length=255,
+        max_length=CODE_LENGTH,
         null=True,
         blank=False,
         default=' '
     )
+
+    class Meta:
+        ordering = ('id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     @property
     def is_admin(self):
@@ -75,23 +85,18 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == MODERATOR
 
-    class Meta:
-        ordering = ('id',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
     def __str__(self):
         return self.username
 
 
 class AbstractModel(models.Model):
     name = models.CharField(
-        max_length=256,
+        max_length=ABSTRACT_NAME_LENGTH,
         verbose_name='категория'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
+        max_length=SLUG_LENGTH,
         verbose_name='slug'
     )
 
@@ -119,7 +124,7 @@ class Genre(AbstractModel):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=64,
+        max_length=ABSTRACT_NAME_LENGTH,
         verbose_name='название'
     )
     year = models.PositiveSmallIntegerField(

@@ -133,3 +133,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+NAME_LENGTH = 150
+SLUG_LENGTH = 50
+EMAIL_LENGTH = 254
+CODE_LENGTH = 255
+ABSTRACT_NAME_LENGTH = 256
