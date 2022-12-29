@@ -37,11 +37,6 @@ class NotAdminSerializer(UsersSerializer):
 
 
 class GetTokenSerializer(UsersSerializer):
-    username = serializers.CharField(
-        required=True,
-        validators=[validate_username],)
-    confirmation_code = serializers.CharField(
-        required=True)
 
     class Meta:
         model = User
@@ -57,9 +52,12 @@ class SignUpSerializer(UsersSerializer):
         validators=[validate_username],
     )
     email = serializers.EmailField(
-        max_length=254,
+        max_length=EMAIL_LENGTH,
     )
 
+# Никак не найти способ без этой валидации
+# Исключения проскакивают и прилетает ошибка сервера
+# django.db.utils.IntegrityError: UNIQUE constraint failed: reviews_user.email
     def validate(self, data):
         username = data.get('username')
         email = data.get('email')
