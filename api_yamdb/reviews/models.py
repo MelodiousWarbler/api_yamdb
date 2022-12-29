@@ -91,7 +91,7 @@ class User(AbstractUser):
         return self.username
 
 
-class AbstractModel(models.Model):
+class GenreAndTitleModel(models.Model):
     name = models.CharField(
         max_length=ABSTRACT_NAME_LENGTH,
         verbose_name='категория'
@@ -106,22 +106,25 @@ class AbstractModel(models.Model):
         abstract = True
         ordering = ['name']
 
+
+class Category(GenreAndTitleModel):
+
+    class Meta(GenreAndTitleModel.Meta):
+        verbose_name = 'категорию'
+        verbose_name_plural = 'категории'
+
     def __str__(self) -> str:
         return self.name
 
 
-class Category(AbstractModel):
+class Genre(GenreAndTitleModel):
 
-    class Meta:
-        verbose_name = 'категорию'
-        verbose_name_plural = 'категории'
-
-
-class Genre(AbstractModel):
-
-    class Meta:
+    class Meta(GenreAndTitleModel.Meta):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Title(models.Model):
