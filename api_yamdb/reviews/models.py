@@ -21,20 +21,20 @@ class User(AbstractUser):
         'имя пользователя',
         validators=(validate_username,),
         max_length=150,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
         'email',
         max_length=254,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
     role = models.CharField(
         'роль',
-        max_length=len(CHOICES),
+        max_length=max(len(choice[1]) for choice in CHOICES),
         choices=CHOICES,
         default=USER,
         blank=True
@@ -60,10 +60,6 @@ class User(AbstractUser):
         blank=False,
         default=' '
     )
-
-    @property
-    def is_user(self):
-        return self.role == USER
 
     @property
     def is_admin(self):
@@ -163,26 +159,38 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    text = models.TextField()
+    text = models.TextField(
+        verbose_name='Текст отзыва',
+    )
     score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        # В redoc'е нет значения по-умолчанию, поэтому будем оптимистами
+        default=10,
+        validators=[
+            MinValueValidator(1, message='Оценка не может быть меньше 1'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10'),
+        ],
+        verbose_name='Оценка',
     )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
+        verbose_name='Произведение',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='reviews',
+        verbose_name='Автор',
     )
     pub_date = models.DateTimeField(
-        'Дата публикации',
         auto_now_add=True,
+        verbose_name='Дата публикации',
     )
 
     class Meta:
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -218,22 +226,21 @@ class Comment(models.Model):
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='отзыв'
+        verbose_name='отзыв',
     )
-    text = models.CharField(
-        'текст комментария',
-        max_length=200
+    text = models.TextField(
+        verbose_name='текст комментария',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='автор'
+        verbose_name='автор',
     )
     pub_date = models.DateTimeField(
-        'дата публикации',
         auto_now_add=True,
-        db_index=True
+        db_index=True,
+        verbose_name='дата публикации',
     )
 
     class Meta:
