@@ -96,7 +96,7 @@ class APISignup(APIView):
             )
         except AuthenticationFailed:
             error = (
-                OCCUPIED_EMAIL 
+                OCCUPIED_EMAIL
                 if User.objects.filter(email=data['email']).exists()
                 else OCCUPIED_USERNAME
             )
