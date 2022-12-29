@@ -1,7 +1,7 @@
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import pagination, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets, pagination, mixins
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
 from api.filters import TitleFilter
+from api.mixins import ListCreateDestroyViewSet
 from api.permissions import (
     AdminOnly,
     isAdminOrReadOnly,
@@ -113,56 +114,19 @@ class APISignup(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+# class CategoryViewSet(ListCreateDestroyViewSet):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+
+
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (isAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
-    lookup_field = 'name'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-
-    def get_object(self):
-        slug = self.kwargs['name']
-        object = get_object_or_404(Category, slug=slug)
-        return object
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        object = self.get_object()
-        self.perform_destroy(object)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (isAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
-    lookup_field = 'name'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-
-    def get_object(self):
-        slug = self.kwargs['name']
-        object = get_object_or_404(Genre, slug=slug)
-        return object
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        object = self.get_object()
-        self.perform_destroy(object)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TitleViewSet(viewsets.ModelViewSet):

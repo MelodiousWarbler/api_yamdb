@@ -33,21 +33,17 @@ class TitleAdmin(admin.ModelAdmin):
         'category',
         'description',
         'year',
-        'raiting',
-        # 'genre',
     )
     list_display = (
         'name',
         'category',
         'description',
         'year',
-        'get_genre',
-        'raiting'
+        'жанры',
     )
     search_fields = (
         'name',
         'category',
-        'raiting'
     )
     list_filter = (
         'category',
@@ -55,7 +51,7 @@ class TitleAdmin(admin.ModelAdmin):
     )
     empty_value_display = '-пусто-'
 
-    def get_genre(self, obj):
+    def жанры(self, obj):
         return [genre.name for genre in obj.genre.all()]
 
 
@@ -79,6 +75,7 @@ class GenreAdmin(admin.ModelAdmin):
         'name',
     )
     empty_value_display = '-пусто-'
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
