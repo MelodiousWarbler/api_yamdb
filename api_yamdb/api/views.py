@@ -151,18 +151,16 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
     def __get_review_by_id(self):
-        review = get_object_or_404(
+        return get_object_or_404(
             Review,
             id=self.kwargs.get('review_id'))
-        return review
 
     def get_queryset(self):
-        review = self.__get_review_by_id()
-        return review.comments.all()
+        return self.__get_review_by_id().comments.all()
 
     def perform_create(self, serializer):
-        review = self.__get_review_by_id()
-        serializer.save(author=self.request.user, review=review)
+        serializer.save(author=self.request.user,
+                        review=self.__get_review_by_id())
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -170,15 +168,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
     def __get_title_by_id(self):
-        title = get_object_or_404(
+        return get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
-        return title
 
     def get_queryset(self):
-        title = self.__get_title_by_id()
-        return title.reviews.all()
+        return self.__get_title_by_id().reviews.all()
 
     def perform_create(self, serializer):
-        title = self.__get_title_by_id()
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user,
+                        title=self.__get_title_by_id())

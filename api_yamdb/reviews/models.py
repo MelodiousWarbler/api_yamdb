@@ -160,50 +160,6 @@ class Title(models.Model):
         return self.name
 
 
-class Review(models.Model):
-    text = models.TextField(
-        verbose_name='Текст отзыва',
-    )
-    score = models.PositiveSmallIntegerField(
-        # В redoc'е нет значения по-умолчанию, поэтому будем оптимистами
-        default=10,
-        validators=[
-            MinValueValidator(1, message='Оценка не может быть меньше 1'),
-            MaxValueValidator(10, message='Оценка не может быть больше 10'),
-        ],
-        verbose_name='Оценка',
-    )
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Произведение',
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Автор',
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-    )
-
-    class Meta:
-        verbose_name = 'отзыв'
-        verbose_name_plural = 'Отзывы'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['title', 'author'],
-                name='Не более 1 ревью на произведение у автора'
-            ),
-        ]
-
-    def __str__(self):
-        return self.text
-
-
 class GenreTitle(models.Model):
     title = models.ForeignKey(
         Title,
@@ -223,29 +179,66 @@ class GenreTitle(models.Model):
         verbose_name_plural = 'жанры'
 
 
-class Comment(models.Model):
+class ReviewAndCommentsModel(models.Model):
+    text = models.TextField(
+        verbose_name='Текст',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата публикации',
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Review(ReviewAndCommentsModel):
+    score = models.PositiveSmallIntegerField(
+        # В redoc'е нет значения по-умолчанию, поэтому будем оптимистами
+        default=10,
+        validators=[
+            MinValueValidator(1, message='Оценка не может быть меньше 1'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10'),
+        ],
+        verbose_name='Оценка',
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение',
+    )
+
+    class Meta(ReviewAndCommentsModel.Meta):
+        verbose_name = 'отзыв'
+        verbose_name_plural = 'Отзывы'
+        default_related_name = 'reviews'
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='Не более 1 ревью на произведение у автора'
+            ),
+        ]
+
+    def __str__(self):
+        return self.text
+
+
+class Comment(ReviewAndCommentsModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='отзыв',
     )
-    text = models.TextField(
-        verbose_name='текст комментария',
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='автор',
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True,
-        verbose_name='дата публикации',
-    )
 
-    class Meta:
+    class Meta(ReviewAndCommentsModel.Meta):
+        default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
