@@ -1,7 +1,7 @@
 # api_yamdb
 Данный API даёт возможность собирать ваши отзывы на различные произведения. <br/>
 Здесь сможете делиться своими идеями, искать единомышленников и дискутировать. <br/>
-Проект полностью реализован при помощи Django Rest Framework. <br/>
+Проект реализован при помощи: Django Web Framework (Python), Django REST Framework, JSON Web Tokens. <br/>
 
 ![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white) <br/>
 Клонировать репозиторий и перейти в него в командной строке:

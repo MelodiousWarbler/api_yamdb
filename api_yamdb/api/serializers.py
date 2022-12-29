@@ -1,3 +1,5 @@
+from datetime import datetime as dt
+
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -150,6 +152,11 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         slug_field='slug',
         many=True
     )
+
+    def validate_year(self, value):
+        if 1000 < value and value > dt.now().year:
+            raise serializers.ValidationError('Год указан неверно!')
+        return value
 
     class Meta:
         fields = '__all__'
