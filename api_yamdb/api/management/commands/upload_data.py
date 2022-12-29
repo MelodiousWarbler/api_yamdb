@@ -1,6 +1,7 @@
 import csv
 
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 
 from reviews.models import (
     Category, Comment, Genre, GenreTitle, Review, Title, User)
@@ -75,13 +76,17 @@ class Command(BaseCommand):
             for row in reader:
                 if row[0] == 'id':
                     continue
-                Review.objects.get_or_create(
-                    title_id=int(row[1]),
-                    text=row[2],
-                    author_id=int(row[3]),
-                    score=int(row[4]),
-                    pub_date=row[5]
-                )
+                try:
+                    Review.objects.get_or_create(
+                        title_id=int(row[1]),
+                        text=row[2],
+                        author_id=int(row[3]),
+                        score=int(row[4]),
+                        pub_date=row[5])
+                except ValueError:
+                    continue
+                except IntegrityError:
+                    continue
             print('Reviews have been uploaded')
 
         with open('static/data/comments.csv', encoding='utf-8') as csvfile:
@@ -89,10 +94,15 @@ class Command(BaseCommand):
             for row in reader:
                 if row[0] == 'id':
                     continue
-                Comment.objects.get_or_create(
-                    review_id=row[1],
-                    text=row[2],
-                    author_id=int(row[3]),
-                    pub_date=row[4]
-                )
+                try:
+                    Comment.objects.get_or_create(
+                        review_id=row[1],
+                        text=row[2],
+                        author_id=int(row[3]),
+                        pub_date=row[4]
+                    )
+                except ValueError:
+                    continue
+                except IntegrityError:
+                    continue
             print('Comments have been uploaded')

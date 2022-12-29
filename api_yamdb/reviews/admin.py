@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Genre, Title, Review, User
+from .models import Category, Genre, Title, Review, User, GenreTitle
 
 
 @admin.register(User)
@@ -20,14 +20,16 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class GenreInlineAdmin(admin.TabularInline):
-    model = Title.genre.through
+    model = GenreTitle
+    verbose_name = 'жанр'
+    verbose_name_plural = 'жанры'
 
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
-    inlines = [
-        GenreInlineAdmin
-    ]
+    inlines = (
+        GenreInlineAdmin,
+    )
     fields = (
         'name',
         'category',
@@ -39,7 +41,7 @@ class TitleAdmin(admin.ModelAdmin):
         'category',
         'description',
         'year',
-        'жанры',
+        'get_genre',
     )
     search_fields = (
         'name',
@@ -51,7 +53,7 @@ class TitleAdmin(admin.ModelAdmin):
     )
     empty_value_display = '-пусто-'
 
-    def жанры(self, obj):
+    def get_genre(self, obj):
         return [genre.name for genre in obj.genre.all()]
 
 
