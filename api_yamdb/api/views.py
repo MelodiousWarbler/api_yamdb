@@ -1,7 +1,7 @@
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import pagination, permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.filters import SearchFilter
@@ -16,6 +16,7 @@ from api.permissions import (
     IsAdminOrReadOnly,
     IsUserAdminModeratorAuthorOrReadOnly,
 )
+from api.mixins import ListCreateDestroyViewSet
 from api.serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -31,8 +32,8 @@ from api.serializers import (
 from reviews.models import Category, Genre, Review, Title, User
 
 
-OCCUPIED_EMAIL='Электронная почта уже занята!'
-OCCUPIED_USERNAME='Имя пользователя уже занято!'
+OCCUPIED_EMAIL = 'Электронная почта уже занята!'
+OCCUPIED_USERNAME = 'Имя пользователя уже занято!'
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -111,56 +112,14 @@ class APISignup(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
-    lookup_field = 'name'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-
-    def get_object(self):
-        slug = self.kwargs['name']
-        object = get_object_or_404(Category, slug=slug)
-        return object
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        object = self.get_object()
-        self.perform_destroy(object)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    pagination_class = pagination.LimitOffsetPagination
-    lookup_field = 'name'
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-
-    def get_object(self):
-        slug = self.kwargs['name']
-        object = get_object_or_404(Genre, slug=slug)
-        return object
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        object = self.get_object()
-        self.perform_destroy(object)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
