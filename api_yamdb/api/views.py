@@ -69,19 +69,16 @@ class APIGetToken(APIView):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        try:
-            user = User.objects.get(username=data['username'])
-        except User.DoesNotExist:
-            return Response(
-                {'username': 'Пользователь не найден!'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        if data.get('confirmation_code') == user.confirmation_code:
+        username = data['username']
+        confirmation_code = data['confirmation_code']
+        user = get_object_or_404(User, username=username)
+        if confirmation_code == user.confirmation_code:
             token = RefreshToken.for_user(user).access_token
             return Response(
                 {'token': str(token)},
                 status=status.HTTP_201_CREATED
             )
+        user.confirmation_code = ' '
         return Response(
             {'confirmation_code': 'Неверный код подтверждения!'},
             status=status.HTTP_400_BAD_REQUEST)
@@ -91,18 +88,18 @@ class APISignup(APIView):
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        data = serializer.validated_data
         try:
-            user = User.objects.get_or_create(username=serializer.validated_data['username'], email=serializer.validated_data['email'])
+            user = User.objects.get_or_create(username=data['username'], email=data['email'])
         except:
-            error = OCCUPIED_EMAIL if User.objects.filter(email=serializer.validated_data['email']).exit else OCCUPIED_USERNAME
+            error = OCCUPIED_EMAIL if User.objects.filter(email=data['email']).exists() else OCCUPIED_USERNAME
             raise AuthenticationFailed(error)
         data = {
             'email_body': (
-                f'Доброго дня, {user.username}.'
-                f'\nКод подтверждения доступа к API: {user.confirmation_code}'
+                f'Доброго дня, {user[0].username}.'
+                f'\nКод подтверждения доступа к API: {user[0].confirmation_code}'
             ),
-            'to_email': user.email,
+            'to_email': user[0].email,
             'email_subject': 'Код подтверждения для доступа к API'
         }
         email = EmailMessage(

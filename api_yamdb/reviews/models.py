@@ -28,13 +28,13 @@ class User(AbstractUser):
     email = models.EmailField(
         'email',
         max_length=254,
-        # unique=True,
+        unique=True,
         blank=False,
         null=False
     )
     role = models.CharField(
         'роль',
-        max_length=(len(choice) for choice in CHOICES),
+        max_length=max(len(choice[1]) for choice in CHOICES),
         choices=CHOICES,
         default=USER,
         blank=True
@@ -60,10 +60,6 @@ class User(AbstractUser):
         blank=False,
         default=' '
     )
-
-    @property
-    def is_user(self):
-        return self.role == USER
 
     @property
     def is_admin(self):
