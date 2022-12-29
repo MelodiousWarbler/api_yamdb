@@ -223,8 +223,6 @@ class Review(ReviewAndCommentsModel):
 
 
 class Comment(ReviewAndCommentsModel):
-    __text_filed_verbose = 'текст комментария'
-
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
