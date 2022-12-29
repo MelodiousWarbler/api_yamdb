@@ -39,7 +39,7 @@ class TitleAdmin(admin.ModelAdmin):
         'category',
         'description',
         'year',
-        'жанры',
+        'get_genre',
     )
     search_fields = (
         'name',
@@ -51,8 +51,10 @@ class TitleAdmin(admin.ModelAdmin):
     )
     empty_value_display = '-пусто-'
 
-    def жанры(self, obj):
+    def get_genre(self, obj):
         return [genre.name for genre in obj.genre.all()]
+
+    get_genre.short_description = 'Жанр'
 
 
 @admin.register(Genre)
