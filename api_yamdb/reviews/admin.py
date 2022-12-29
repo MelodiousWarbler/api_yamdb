@@ -80,6 +80,7 @@ class GenreAdmin(admin.ModelAdmin):
     )
     empty_value_display = '-пусто-'
 
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     fields = (
