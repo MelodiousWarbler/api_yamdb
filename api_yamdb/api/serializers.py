@@ -3,20 +3,23 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from api_yamdb.settings import (
+    EMAIL_LENGTH, NAME_LENGTH
+)
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
 
 
 class UsersSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
-        max_length=150,
+        max_length=NAME_LENGTH,
         validators=[
             validate_username,
             UniqueValidator(queryset=User.objects.all())
         ],
     )
     email = serializers.EmailField(
-        max_length=254,
+        max_length=EMAIL_LENGTH,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
@@ -25,7 +28,6 @@ class UsersSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name',
             'last_name', 'bio', 'role')
-        validators = []
 
 
 class NotAdminSerializer(UsersSerializer):
@@ -51,7 +53,7 @@ class GetTokenSerializer(UsersSerializer):
 
 class SignUpSerializer(UsersSerializer):
     username = serializers.CharField(
-        max_length=150,
+        max_length=NAME_LENGTH,
         validators=[validate_username],
     )
     email = serializers.EmailField(

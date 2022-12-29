@@ -3,7 +3,7 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -73,13 +73,13 @@ class APIGetToken(APIView):
         username = data['username']
         confirmation_code = data['confirmation_code']
         user = get_object_or_404(User, username=username)
-        if confirmation_code == user.confirmation_code:
+        if confirmation_code != ' ' and confirmation_code == user.confirmation_code:
             token = RefreshToken.for_user(user).access_token
+            user.confirmation_code = ' '
             return Response(
                 {'token': str(token)},
                 status=status.HTTP_201_CREATED
             )
-        user.confirmation_code = ' '
         return Response(
             {'confirmation_code': 'Неверный код подтверждения!'},
             status=status.HTTP_400_BAD_REQUEST)
@@ -90,17 +90,21 @@ class APISignup(APIView):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        email = data['email']
         try:
             user = User.objects.get_or_create(
-                username=data['username'], email=data['email']
+                username=data['username'], email=email
             )
-        except AuthenticationFailed:
+        except ValidationError:
             error = (
                 OCCUPIED_EMAIL
-                if User.objects.filter(email=data['email']).exists()
+                if User.objects.filter(email=email).exists()
                 else OCCUPIED_USERNAME
             )
-            raise AuthenticationFailed(error)
+            raise ValidationError({
+                'username': error,
+                'email': error,
+            })
         data = {
             'email_body': (
                 f'Доброго дня, {user[0].username}.'
