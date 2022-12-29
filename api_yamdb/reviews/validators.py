@@ -12,7 +12,7 @@ def validate_username(value):
         )
     if re.search(r'^[\w_.@+-]+$', value) is None:
         raise ValidationError(
-            (f'Допустимы буквы, цифры и символы _.@+-'),
+            ('Допустимы буквы, цифры и символы _.@+-'),
             params={'value': value},
         )
 

@@ -91,14 +91,21 @@ class APISignup(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         try:
-            user = User.objects.get_or_create(username=data['username'], email=data['email'])
-        except:
-            error = OCCUPIED_EMAIL if User.objects.filter(email=data['email']).exists() else OCCUPIED_USERNAME
+            user = User.objects.get_or_create(
+                username=data['username'], email=data['email']
+            )
+        except AuthenticationFailed:
+            error = (
+                OCCUPIED_EMAIL 
+                if User.objects.filter(email=data['email']).exists()
+                else OCCUPIED_USERNAME
+            )
             raise AuthenticationFailed(error)
         data = {
             'email_body': (
                 f'Доброго дня, {user[0].username}.'
-                f'\nКод подтверждения доступа к API: {user[0].confirmation_code}'
+                f'\nКод подтверждения доступа к API: '
+                f'{user[0].confirmation_code}'
             ),
             'to_email': user[0].email,
             'email_subject': 'Код подтверждения для доступа к API'
@@ -123,7 +130,9 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')
+    )
     permission_classes = (IsAdminOrReadOnly,)
     filterset_class = TitleFilter
 

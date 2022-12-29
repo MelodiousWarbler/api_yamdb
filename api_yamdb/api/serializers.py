@@ -1,9 +1,7 @@
-import re
-
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
@@ -12,7 +10,10 @@ from reviews.validators import validate_username
 class UsersSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=150,
-        validators=[validate_username, UniqueValidator(queryset=User.objects.all())],
+        validators=[
+            validate_username,
+            UniqueValidator(queryset=User.objects.all())
+        ],
     )
     email = serializers.EmailField(
         max_length=254,
@@ -71,7 +72,9 @@ class SignUpSerializer(UsersSerializer):
             User.objects.filter(username=username).exists()
             and User.objects.get(username=username).email != email
         ):
-            raise serializers.ValidationError('Пользователь с таким именем уже существует!')
+            raise serializers.ValidationError(
+                'Пользователь с таким именем уже существует!'
+            )
         return data
 
     class Meta:
