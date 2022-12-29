@@ -1,9 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+# from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -92,7 +93,7 @@ class APISignup(APIView):
         data = serializer.validated_data
         email = data['email']
         try:
-            user = User.objects.get_or_create(
+            user, created = User.objects.get_or_create(
                 username=data['username'], email=email
             )
         except ValidationError:
@@ -107,11 +108,11 @@ class APISignup(APIView):
             })
         data = {
             'email_body': (
-                f'Доброго дня, {user[0].username}.'
+                f'Доброго дня, {user.username}.'
                 f'\nКод подтверждения доступа к API: '
-                f'{user[0].confirmation_code}'
+                f'{user.confirmation_code}'
             ),
-            'to_email': user[0].email,
+            'to_email': user.email,
             'email_subject': 'Код подтверждения для доступа к API'
         }
         email = EmailMessage(
