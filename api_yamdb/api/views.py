@@ -74,7 +74,10 @@ class APIGetToken(APIView):
         username = data['username']
         confirmation_code = data['confirmation_code']
         user = get_object_or_404(User, username=username)
-        if confirmation_code != ' ' and confirmation_code == user.confirmation_code:
+        if (
+            confirmation_code != ' '
+            and confirmation_code == user.confirmation_code
+        ):
             token = RefreshToken.for_user(user).access_token
             user.confirmation_code = ' '
             return Response(
