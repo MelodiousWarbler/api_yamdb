@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db.models import Avg
+from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -99,16 +100,13 @@ class APISignup(APIView):
             user, created = User.objects.get_or_create(
                 username=data['username'], email=email
             )
-        except ValidationError:
+        except IntegrityError:
             error = (
                 OCCUPIED_EMAIL
                 if User.objects.filter(email=email).exists()
                 else OCCUPIED_USERNAME
             )
-            raise ValidationError({
-                'username': error,
-                'email': error,
-            })
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
         data = {
             'email_body': (
                 f'Доброго дня, {user.username}.'
