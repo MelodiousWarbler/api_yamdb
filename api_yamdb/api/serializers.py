@@ -1,5 +1,3 @@
-from datetime import datetime as dt
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -37,10 +35,13 @@ class NotAdminSerializer(UsersSerializer):
         read_only_fields = ('role',)
 
 
-# Для классов регистрации (SignUpSerializer) и проверки токена (GetTokenSerializer)
+# Для классов регистрации (SignUpSerializer)
+# и проверки токена (GetTokenSerializer)
 # не нужно общение с БД (разве оно есть?),
-# нужно переопределить родительский класс (UsersSerializer - переопределён).
-# Так же смотри замечание в модели про валидацию и про длину полей (settings. - сделано),
+# нужно переопределить родительский класс
+# (UsersSerializer - переопределён).
+# Так же смотри замечание в модели про валидацию
+# и про длину полей (settings. - сделано),
 # это касается всех сериалайзеров для юсера.
 # (Что мы упускаем?)
 class GetTokenSerializer(UsersSerializer):
