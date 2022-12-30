@@ -150,31 +150,33 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
+    @property
     def __get_review_by_id(self):
         return get_object_or_404(
             Review,
             id=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        return self.__get_review_by_id().comments.all()
+        return self.__get_review_by_id.comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-                        review=self.__get_review_by_id())
+                        review=self.__get_review_by_id)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsUserAdminModeratorAuthorOrReadOnly,)
 
+    @property
     def __get_title_by_id(self):
         return get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        return self.__get_title_by_id().reviews.all()
+        return self.__get_title_by_id.reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-                        title=self.__get_title_by_id())
+                        title=self.__get_title_by_id)
