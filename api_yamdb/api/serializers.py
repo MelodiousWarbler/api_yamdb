@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from api.utils import current_year
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
 
@@ -147,7 +148,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     raiting = RaitingField(read_only=True)
 
     def validate_year(self, value):
-        if 1000 < value and value > dt.now().year:
+        if 1000 < value and value > current_year():
             raise serializers.ValidationError('Год указан неверно!')
         return value
 
