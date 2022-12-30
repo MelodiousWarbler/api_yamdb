@@ -13,11 +13,14 @@ def category_data():
         for row in reader:
             if row[0] == 'id':
                 continue
-            Category.objects.get_or_create(
-                name=row[1],
-                slug=row[2]
-            )
-        print('Category data has been uploaded')
+            try:
+                Category.objects.get_or_create(
+                    name=row[1],
+                    slug=row[2]
+                )
+            except ValueError:
+                print(ValueError('Неверные данные!'))
+        print('Категории были добавлены.')
 
 
 def genre_data():
@@ -26,11 +29,14 @@ def genre_data():
         for row in reader:
             if row[0] == 'id':
                 continue
-            Genre.objects.get_or_create(
-                name=row[1],
-                slug=row[2]
-            )
-        print('Genre data has been uploaded')
+            try:
+                Genre.objects.get_or_create(
+                    name=row[1],
+                    slug=row[2]
+                )
+            except ValueError:
+                print(ValueError('Неверные данные!'))
+        print('Жанры были добавлены.')
 
 
 def users_data():
@@ -39,15 +45,18 @@ def users_data():
         for row in reader:
             if row[0] == 'id':
                 continue
-            User.objects.get_or_create(
-                username=row[1],
-                email=row[2],
-                role=row[3],
-                bio=row[4],
-                first_name=row[5],
-                last_name=row[6]
-            )
-        print('Users have been uploaded')
+            try:
+                User.objects.get_or_create(
+                    username=row[1],
+                    email=row[2],
+                    role=row[3],
+                    bio=row[4],
+                    first_name=row[5],
+                    last_name=row[6]
+                )
+            except ValueError:
+                print(ValueError('Неверные данные!'))
+        print('Пользователи были добавлены.')
 
 
 def titles_data():
@@ -56,12 +65,15 @@ def titles_data():
         for row in reader:
             if row[0] == 'id':
                 continue
-            Title.objects.get_or_create(
-                name=row[1],
-                year=row[2],
-                category_id=int(row[3])
-            )
-        print('Titles have been uploaded')
+            try:
+                Title.objects.get_or_create(
+                    name=row[1],
+                    year=row[2],
+                    category_id=int(row[3])
+                )
+            except ValueError:
+                print(ValueError('Неверные данные!'))
+        print('Произведение были добавлены.')
 
 
 def genre_title_data():
@@ -70,11 +82,14 @@ def genre_title_data():
         for row in reader:
             if row[0] == 'id':
                 continue
-            GenreTitle.objects.get_or_create(
-                title_id=int(row[1]),
-                genre_id=int(row[2])
-            )
-        print('Genre-title data has been uploaded')
+            try:
+                GenreTitle.objects.get_or_create(
+                    title_id=int(row[1]),
+                    genre_id=int(row[2])
+                )
+            except ValueError:
+                print(ValueError('Неверные данные!'))
+        print('Жанры для произведений были добавлены.')
 
 
 def review_data():
@@ -85,16 +100,23 @@ def review_data():
                 continue
             try:
                 Review.objects.get_or_create(
+                    id=row[0],
                     title_id=int(row[1]),
                     text=row[2],
-                    author_id=int(row[3]),
+                    # Заглушка для записи данных в Review, так как
+                    # данные в исходных файлах не коррелируются между собой
+                    author_id=int(row[3]) - 99,
                     score=int(row[4]),
                     pub_date=row[5])
             except ValueError:
-                continue
+                print(ValueError("Неверные данные!"))
             except IntegrityError:
-                continue
-        print('Reviews have been uploaded')
+                print(IntegrityError(
+                    ("Пользовательно только единожды может написать"
+                     " ревью на это произведение!")
+                )
+                )
+        print('Обзоры были добавлены.')
 
 
 def comments_data():
@@ -107,24 +129,35 @@ def comments_data():
                 Comment.objects.get_or_create(
                     review_id=row[1],
                     text=row[2],
-                    author_id=int(row[3]),
+                    # Заглушка для записи данных в Comment, так как
+                    # данные в исходных файлах не коррелируются между собой
+                    author_id=int(row[3]) - 99,
                     pub_date=row[4]
                 )
             except ValueError:
-                continue
-            except IntegrityError:
-                continue
-        print('Comments have been uploaded')
+                print(ValueError('Неверные данные!'))
+        print('Комментарии были добавлены.')
 
 
 class Command(BaseCommand):
     help = 'This command uploads data'
 
     def handle(self, *args, **options):
-        genre_data()
-        category_data()
-        users_data()
-        titles_data()
-        genre_title_data()
-        review_data()
-        comments_data()
+        funcs = [
+            category_data,
+            genre_data,
+            users_data,
+            titles_data,
+            genre_title_data,
+            review_data,
+            comments_data
+        ]
+        for func in funcs:
+            try:
+                func()
+            except FileNotFoundError:
+                print(
+                    FileNotFoundError(
+                        f'Файл {func.__name__[:-5]}.csv не найден!'
+                    )
+                )

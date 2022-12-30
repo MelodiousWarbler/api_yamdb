@@ -1,10 +1,9 @@
-from datetime import datetime as dt
-
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from api.utils import current_year
 from api_yamdb.settings import (
     EMAIL_LENGTH, NAME_LENGTH
 )
@@ -154,7 +153,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     )
 
     def validate_year(self, value):
-        if 1000 < value and value > dt.now().year:
+        if 1000 < value and value > current_year():
             raise serializers.ValidationError('Год указан неверно!')
         return value
 

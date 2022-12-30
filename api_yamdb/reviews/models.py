@@ -1,9 +1,8 @@
-from datetime import datetime as dt
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from api.utils import current_year
 from api_yamdb.settings import (
     ABSTRACT_NAME_LENGTH,
     CODE_LENGTH, EMAIL_LENGTH,
@@ -106,15 +105,15 @@ class GenreAndTitleModel(models.Model):
         abstract = True
         ordering = ['name']
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Category(GenreAndTitleModel):
 
     class Meta(GenreAndTitleModel.Meta):
         verbose_name = 'категорию'
         verbose_name_plural = 'категории'
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class Genre(GenreAndTitleModel):
@@ -123,9 +122,6 @@ class Genre(GenreAndTitleModel):
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
 
-    def __str__(self) -> str:
-        return self.name
-
 
 class Title(models.Model):
     name = models.CharField(
@@ -133,7 +129,8 @@ class Title(models.Model):
         verbose_name='название'
     )
     year = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1000), MaxValueValidator(dt.now().year)],
+        validators=[MinValueValidator(1000),
+                    MaxValueValidator(current_year())],
         db_index=True,
         verbose_name='год производства'
     )
