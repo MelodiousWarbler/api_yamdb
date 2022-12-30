@@ -129,6 +129,11 @@ class TitleReadSerializer(serializers.ModelSerializer):
         read_only_fieilds = '__all__'
 
 
+class RaitingField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.score
+
+
 class TitleWriteSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -139,6 +144,7 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         slug_field='slug',
         many=True
     )
+    raiting = RaitingField(read_only=True)
 
     def validate_year(self, value):
         if 1000 < value and value > dt.now().year:
@@ -146,7 +152,15 @@ class TitleWriteSerializer(serializers.ModelSerializer):
         return value
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'raiting',
+            'description',
+            'genre',
+            'category',
+        )
         model = Title
 
 

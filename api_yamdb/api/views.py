@@ -4,7 +4,8 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -139,6 +140,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     )
     permission_classes = (IsAdminOrReadOnly,)
     filterset_class = TitleFilter
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['slug']
+    ordering_fields = ['name', 'slug']
+    ordering = ['name']
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
