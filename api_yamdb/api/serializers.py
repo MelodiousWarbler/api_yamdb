@@ -43,6 +43,13 @@ class NotAdminSerializer(UsersSerializer):
 # это касается всех сериалайзеров для юсера.
 # (Что мы упускаем?)
 class GetTokenSerializer(UsersSerializer):
+    username = serializers.CharField(
+        max_length=settings.NAME_LENGTH,
+        validators=[validate_username],
+    )
+    email = serializers.EmailField(
+        max_length=settings.EMAIL_LENGTH,
+    )
 
     class Meta(UsersSerializer.Meta):
         fields = (
