@@ -47,8 +47,8 @@ class GetTokenSerializer(UsersSerializer):
         max_length=settings.NAME_LENGTH,
         validators=[validate_username],
     )
-    email = serializers.EmailField(
-        max_length=settings.EMAIL_LENGTH,
+    confirmation_code = serializers.CharField(
+        max_length=settings.CODE_LENGTH,
     )
 
     class Meta(UsersSerializer.Meta):
