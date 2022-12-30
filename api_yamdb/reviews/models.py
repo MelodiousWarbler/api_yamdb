@@ -195,6 +195,9 @@ class ReviewAndCommentsModel(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return self.text[:30]
+
 
 class Review(ReviewAndCommentsModel):
     score = models.PositiveSmallIntegerField(
@@ -224,9 +227,6 @@ class Review(ReviewAndCommentsModel):
             ),
         ]
 
-    def __str__(self):
-        return self.text
-
 
 class Comment(ReviewAndCommentsModel):
     review = models.ForeignKey(
@@ -240,6 +240,3 @@ class Comment(ReviewAndCommentsModel):
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return self.text
