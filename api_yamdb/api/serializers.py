@@ -1,26 +1,26 @@
+from datetime import datetime as dt
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from api.utils import current_year
-from api_yamdb.settings import (
-    EMAIL_LENGTH, NAME_LENGTH
-)
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
 
 
 class UsersSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
-        max_length=NAME_LENGTH,
+        max_length=settings.NAME_LENGTH,
         validators=[
             validate_username,
             UniqueValidator(queryset=User.objects.all())
         ],
     )
     email = serializers.EmailField(
-        max_length=EMAIL_LENGTH,
+        max_length=settings.EMAIL_LENGTH,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
@@ -37,10 +37,15 @@ class NotAdminSerializer(UsersSerializer):
         read_only_fields = ('role',)
 
 
+# Для классов регистрации (SignUpSerializer) и проверки токена (GetTokenSerializer)
+# не нужно общение с БД (разве оно есть?),
+# нужно переопределить родительский класс (UsersSerializer - переопределён).
+# Так же смотри замечание в модели про валидацию и про длину полей (settings. - сделано),
+# это касается всех сериалайзеров для юсера.
+# (Что мы упускаем?)
 class GetTokenSerializer(UsersSerializer):
 
-    class Meta:
-        model = User
+    class Meta(UsersSerializer.Meta):
         fields = (
             'username',
             'confirmation_code'
@@ -49,37 +54,14 @@ class GetTokenSerializer(UsersSerializer):
 
 class SignUpSerializer(UsersSerializer):
     username = serializers.CharField(
-        max_length=NAME_LENGTH,
+        max_length=settings.NAME_LENGTH,
         validators=[validate_username],
     )
     email = serializers.EmailField(
-        max_length=EMAIL_LENGTH,
+        max_length=settings.EMAIL_LENGTH,
     )
 
-# Никак не найти способ без этой валидации
-# Исключения проскакивают и прилетает ошибка сервера
-# django.db.utils.IntegrityError: UNIQUE constraint failed: reviews_user.email
-    def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        if (
-            User.objects.filter(email=email).exists()
-            and User.objects.get(email=email).username != username
-        ):
-            raise serializers.ValidationError(
-                'Этот адрес электронной почты уже зарегестрирован!'
-            )
-        if (
-            User.objects.filter(username=username).exists()
-            and User.objects.get(username=username).email != email
-        ):
-            raise serializers.ValidationError(
-                'Пользователь с таким именем уже существует!'
-            )
-        return data
-
-    class Meta:
-        model = User
+    class Meta(UsersSerializer.Meta):
         fields = (
             'username',
             'email'

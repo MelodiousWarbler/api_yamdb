@@ -1,13 +1,11 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
+from datetime import datetime as dt
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from api.utils import current_year
-from api_yamdb.settings import (
-    ABSTRACT_NAME_LENGTH,
-    CODE_LENGTH, EMAIL_LENGTH,
-    NAME_LENGTH, SLUG_LENGTH
-)
 from reviews.validators import validate_username
 
 
@@ -26,14 +24,14 @@ class User(AbstractUser):
     username = models.CharField(
         'имя пользователя',
         validators=(validate_username,),
-        max_length=NAME_LENGTH,
+        max_length=settings.NAME_LENGTH,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
         'email',
-        max_length=EMAIL_LENGTH,
+        max_length=settings.EMAIL_LENGTH,
         unique=True,
         blank=False,
         null=False
@@ -41,7 +39,7 @@ class User(AbstractUser):
     role = models.CharField(
         'роль',
         max_length=max(
-            max(len(choice), len(_choice)) for choice, _choice in CHOICES
+            len(choice) for choice, _ in CHOICES
         ),
         choices=CHOICES,
         default=USER,
@@ -53,17 +51,17 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=NAME_LENGTH,
+        max_length=settings.NAME_LENGTH,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=NAME_LENGTH,
+        max_length=settings.NAME_LENGTH,
         blank=True
     )
     confirmation_code = models.CharField(
         'код подтверждения',
-        max_length=CODE_LENGTH,
+        max_length=settings.CODE_LENGTH,
         null=True,
         blank=False,
         default=' '
@@ -92,12 +90,12 @@ class User(AbstractUser):
 
 class GenreAndTitleModel(models.Model):
     name = models.CharField(
-        max_length=ABSTRACT_NAME_LENGTH,
+        max_length=settings.ABSTRACT_NAME_LENGTH,
         verbose_name='категория'
     )
     slug = models.SlugField(
         unique=True,
-        max_length=SLUG_LENGTH,
+        max_length=settings.SLUG_LENGTH,
         verbose_name='slug'
     )
 
@@ -125,7 +123,7 @@ class Genre(GenreAndTitleModel):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=ABSTRACT_NAME_LENGTH,
+        max_length=settings.ABSTRACT_NAME_LENGTH,
         verbose_name='название'
     )
     year = models.PositiveSmallIntegerField(
