@@ -15,6 +15,7 @@ def category_data():
                 continue
             try:
                 Category.objects.get_or_create(
+                    id=row[0],
                     name=row[1],
                     slug=row[2]
                 )
@@ -31,6 +32,7 @@ def genre_data():
                 continue
             try:
                 Genre.objects.get_or_create(
+                    id=row[0],
                     name=row[1],
                     slug=row[2]
                 )
@@ -47,6 +49,7 @@ def users_data():
                 continue
             try:
                 User.objects.get_or_create(
+                    id=row[0],
                     username=row[1],
                     email=row[2],
                     role=row[3],
@@ -67,6 +70,7 @@ def titles_data():
                 continue
             try:
                 Title.objects.get_or_create(
+                    id=row[0],
                     name=row[1],
                     year=row[2],
                     category_id=int(row[3])
@@ -84,6 +88,7 @@ def genre_title_data():
                 continue
             try:
                 GenreTitle.objects.get_or_create(
+                    id=row[0],
                     title_id=int(row[1]),
                     genre_id=int(row[2])
                 )
@@ -103,9 +108,7 @@ def review_data():
                     id=row[0],
                     title_id=int(row[1]),
                     text=row[2],
-                    # Заглушка для записи данных в Review, так как
-                    # данные в исходных файлах не коррелируются между собой
-                    author_id=int(row[3]) - 99,
+                    author_id=int(row[3]),
                     score=int(row[4]),
                     pub_date=row[5])
             except ValueError:
@@ -127,11 +130,10 @@ def comments_data():
                 continue
             try:
                 Comment.objects.get_or_create(
+                    id=row[0],
                     review_id=row[1],
                     text=row[2],
-                    # Заглушка для записи данных в Comment, так как
-                    # данные в исходных файлах не коррелируются между собой
-                    author_id=int(row[3]) - 99,
+                    author_id=int(row[3]),
                     pub_date=row[4]
                 )
             except ValueError:
