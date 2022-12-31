@@ -126,7 +126,7 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1000),
-                    MaxValueValidator(current_year())],
+                    MaxValueValidator(current_year)],
         db_index=True,
         verbose_name='год производства'
     )
