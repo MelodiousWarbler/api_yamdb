@@ -35,16 +35,7 @@ class NotAdminSerializer(UsersSerializer):
         read_only_fields = ('role',)
 
 
-# Для классов регистрации (SignUpSerializer)
-# и проверки токена (GetTokenSerializer)
-# не нужно общение с БД (разве оно есть?),
-# нужно переопределить родительский класс
-# (UsersSerializer - переопределён).
-# Так же смотри замечание в модели про валидацию
-# и про длину полей (settings. - сделано),
-# это касается всех сериалайзеров для юсера.
-# (Что мы упускаем?)
-class GetTokenSerializer(UsersSerializer):
+class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=settings.NAME_LENGTH,
         validators=[validate_username],
@@ -53,14 +44,14 @@ class GetTokenSerializer(UsersSerializer):
         max_length=settings.CODE_LENGTH,
     )
 
-    class Meta(UsersSerializer.Meta):
+    class Meta:
         fields = (
             'username',
             'confirmation_code'
         )
 
 
-class SignUpSerializer(UsersSerializer):
+class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=settings.NAME_LENGTH,
         validators=[validate_username],
@@ -69,7 +60,7 @@ class SignUpSerializer(UsersSerializer):
         max_length=settings.EMAIL_LENGTH,
     )
 
-    class Meta(UsersSerializer.Meta):
+    class Meta:
         fields = (
             'username',
             'email'
